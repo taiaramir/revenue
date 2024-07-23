@@ -92,12 +92,22 @@ def get_user_inputs():
 
     # Use session state to keep track of the user lines
     if 'user_lines' not in st.session_state:
-        st.session_state.user_lines = [{"name": "Line item #1", "plan": "Basic", "customers": 0, "users": 0}]
+        st.session_state.user_lines = [{"name": "Line item #1", "plan": "Basic", "customers": 0, "users": 0, "year_started": 1}]
 
     users_data = []
 
+    # Reduce gaps by using custom CSS
+    st.markdown("""
+    <style>
+    .stContainer {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     for i, user_line in enumerate(st.session_state.user_lines):
-        col_name, col1, col2, col3, col_delete = st.columns([3, 2, 2, 2, 1])
+        col_name, col1, col2, col3, col4, col_delete = st.columns([3, 2, 2, 2, 2, 1])
         
         with col_name:
             name = st.text_input("Name", value=user_line.get("name", f"Line item #{i+1}"), key=f"name_{i}")
@@ -111,9 +121,12 @@ def get_user_inputs():
         with col3:
             users = st.number_input("Users", min_value=0, step=1, key=f"users_{i}", value=user_line["users"])
         
+        with col4:
+            year_started = st.number_input("Year Started", min_value=1, step=1, key=f"year_started_{i}", value=user_line.get("year_started", 1))
+        
         with col_delete:
             if len(st.session_state.user_lines) > 1:
-                if st.button("Delete", key=f"delete_{i}"):
+                if st.button("🗑️", key=f"delete_{i}"):
                     st.session_state.user_lines.pop(i)
                     st.experimental_rerun()
 
@@ -121,16 +134,17 @@ def get_user_inputs():
             "Name": name,
             "Plan": plan,
             "Customers": customers,
-            "Users": users
+            "Users": users,
+            "Year Started": year_started
         })
 
         # Update session state
-        st.session_state.user_lines[i] = {"name": name, "plan": plan, "customers": customers, "users": users}
+        st.session_state.user_lines[i] = {"name": name, "plan": plan, "customers": customers, "users": users, "year_started": year_started}
 
     # Add button with green color
     if st.button("Add", type="primary"):
         new_line_number = len(st.session_state.user_lines) + 1
-        st.session_state.user_lines.append({"name": f"Line item #{new_line_number}", "plan": "Basic", "customers": 0, "users": 0})
+        st.session_state.user_lines.append({"name": f"Line item #{new_line_number}", "plan": "Basic", "customers": 0, "users": 0, "year_started": 1})
         st.experimental_rerun()
 
     return users_data
