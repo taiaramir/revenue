@@ -72,26 +72,14 @@ def display_user_growth_chart(revenue_data, years):
             marker=dict(color=colors[i % len(colors)], size=8)
         ))
     
-    for i, (line_item, users) in enumerate(line_items.items()):
-        fig.add_trace(go.Scatter(
-            x=list(range(1, years + 1)),
-            y=users,
-            mode='lines+markers',
-            name=line_item,
-            line=dict(color=colors[i % len(colors)], width=2),
-            marker=dict(color=colors[i % len(colors)], size=8)
-        ))
-    
     fig.update_layout(
-        title='Revenue Growth Over Time',
+        title='User Growth Over Time',
         xaxis_title='Year',
-        yaxis_title='Revenue ($)',
-        legend_title='Revenue Types',
+        yaxis_title='Number of Users',
+        legend_title='Line Items',
         hovermode='x unified',
-        height=500  # Increase the height of the chart
+        height=500
     )
-    # Format y-axis labels as currency
-    fig.update_layout(yaxis=dict(tickformat='$,.0f'))
     
     # Display the chart in Streamlit
     st.plotly_chart(fig, use_container_width=True)
@@ -104,6 +92,7 @@ def calculate_revenue(plans, users, years):
         initial_customers = user_line['Customers']
         initial_users = user_line['Users']
         line_item_name = user_line['Name']
+        year_started = user_line['Year Started']
         
         plan_data = plans[plan]
         growth_rate = plan_data['Growth']
@@ -114,7 +103,61 @@ def calculate_revenue(plans, users, years):
         previous_customers = 0
         
         for year in range(1, years + 1):
-            if year > 1:
+            if year < year_started:
+                # Add zero revenue for years before the start year
+                revenue_data.extend([
+                    {
+                        'Line Item': line_item_name,
+                        'Revenue Type': 'Customers',
+                        'Year': year,
+                        'Amount': 0,
+                        'Order': order,
+                        'Sub Order': 0
+                    },
+                    {
+                        'Line Item': line_item_name,
+                        'Revenue Type': 'Users',
+                        'Year': year,
+                        'Amount': 0,
+                        'Order': order,
+                        'Sub Order': 1
+                    },
+                    {
+                        'Line Item': line_item_name,
+                        'Revenue Type': f"Platform Revenue (${plan_data['Platform Fee']})",
+                        'Year': year,
+                        'Amount': 0,
+                        'Order': order,
+                        'Sub Order': 2
+                    },
+                    {
+                        'Line Item': line_item_name,
+                        'Revenue Type': f"Implementation Revenue (${plan_data['Implementation Fee']})",
+                        'Year': year,
+                        'Amount': 0,
+                        'Order': order,
+                        'Sub Order': 3
+                    },
+                    {
+                        'Line Item': line_item_name,
+                        'Revenue Type': f"Users Revenue (${plan_data['Seat Fee']})",
+                        'Year': year,
+                        'Amount': 0,
+                        'Order': order,
+                        'Sub Order': 4
+                    },
+                    {
+                        'Line Item': line_item_name,
+                        'Revenue Type': 'Total Revenue',
+                        'Year': year,
+                        'Amount': 0,
+                        'Order': order,
+                        'Sub Order': 5
+                    }
+                ])
+                continue
+
+            if year > year_started:
                 # Calculate new and churned customers
                 new_customers = int(customers * growth_rate)
                 churned_customers = int(customers * churn_rate)
