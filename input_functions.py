@@ -96,6 +96,8 @@ def get_plan_inputs():
 
     return st.session_state.plans_data
 
+import streamlit as st
+
 def get_user_inputs():
     st.header("Users")
 
@@ -109,7 +111,7 @@ def get_user_inputs():
             "total_employees": 10000,
             "users_target": 5.0,
             "users": 500,
-            "workspaces": 50,  # New field
+            "workspaces": 50,
             "year_started": 1
         }]
 
@@ -140,10 +142,10 @@ def get_user_inputs():
 
         if st.button("Remove", key=f"remove_{i}"):
             st.session_state.user_lines.pop(i)
-            st.experimental_rerun()
+            st.rerun()
 
         users_data.append({
-            "Order": i, 
+            "Order": i,
             "Name": name,
             "Plan": plan,
             "Total companies": total_companies,
@@ -185,6 +187,6 @@ def get_user_inputs():
             "workspaces": 50,
             "year_started": 1
         })
-        st.experimental_rerun()
+        st.rerun()
 
     return users_data

@@ -3,70 +3,31 @@ from input_functions import get_plan_inputs, get_user_inputs
 from revenue_calculation import calculate_revenue
 from revenue_display import display_revenue_table
 from charts import display_user_growth_chart, display_revenue_growth_chart, display_revenue_breakdown_chart
-
 from color_palettes import PRIMARY_PURPLE
-st.set_page_config(page_title="Revenue Projection", page_icon="📊", layout="wide", initial_sidebar_state="expanded", menu_items=None)
-
-# Custom CSS for tab styling
-st.markdown(f"""
-<style>
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 24px;
-    }}
-    .stTabs [data-baseweb="tab"] {{
-        height: 50px;
-        white-space: pre-wrap;
-        border-radius: 4px 4px 0px 0px;
-        gap: 12px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        padding-left: 20px;
-        padding-right: 20px;
-        border-bottom: 2px solid transparent;
-    }}
-    .stTabs [aria-selected="true"] {{
-        background-color: transparent !important;
-        border-bottom-color: {PRIMARY_PURPLE[700]} !important;
-        border-top: none !important;
-        border-left: none !important;
-        border-right: none !important;
-    }}
-    .stTabs [aria-selected="true"] [data-testid="stMarkdownContainer"] p {{
-        color: {PRIMARY_PURPLE[700]} !important;
-    }}
-    .stTabs [role="tablist"] button [data-testid="stMarkdownContainer"] p {{
-        font-size: 14px;
-        font-weight: 500;
-    }}
-    .stTabs [data-baseweb="tab"]:hover {{
-        background-color: transparent !important;
-        border-bottom-color: {PRIMARY_PURPLE[700]} !important;
-        border-top: none !important;
-        border-left: none !important;
-        border-right: none !important;
-    }}
-    .stTabs [data-baseweb="tab"]:hover [data-testid="stMarkdownContainer"] p {{
-        color: {PRIMARY_PURPLE[700]} !important;
-    }}
-    .stTabs [data-baseweb="tab-highlight"] {{
-        display: none;
-    }}
-</style>
-""", unsafe_allow_html=True)
-
-# ... rest of your main() function
+from help_page import display_math_explanation
 
 def main():
     if 'page' not in st.session_state:
         st.session_state.page = "Plans"
 
     st.sidebar.title("Navigation")
-    st.session_state.page = st.sidebar.radio("Go to", ["Plans", "Users", "Revenue", "Insights"], key="navigation")
+    
+    # Main navigation
+    main_pages = ["Plans", "Users", "Revenue", "Insights"]
+    selected_page = st.sidebar.radio("Go to", main_pages, key="navigation")
+    
+    # Update the page state based on main navigation
+    st.session_state.page = selected_page
 
     # Add year slider to sidebar
     st.sidebar.markdown("---")
     st.sidebar.markdown("### Years")
     years = st.sidebar.slider("Projection Years", min_value=1, max_value=7, value=1, step=1)
+
+    # Add Help section to sidebar
+    st.sidebar.markdown("---")
+    if st.sidebar.button("Calculation Explanation", key="help_button"):
+        st.session_state.page = "Calculation Explanation"
 
     # Initialize session state for plans and users if not already present
     if 'plans' not in st.session_state:
@@ -74,6 +35,7 @@ def main():
     if 'users' not in st.session_state:
         st.session_state.users = get_user_inputs()
 
+    # Display the appropriate page content
     if st.session_state.page == "Plans":
         st.session_state.plans = get_plan_inputs()
     elif st.session_state.page == "Users":
@@ -92,7 +54,9 @@ def main():
         display_revenue_growth_chart(revenue_data, years)
 
         st.subheader("Revenue Breakdown by Line Item")
-        display_revenue_breakdown_chart(revenue_data, years, st.session_state.users)  # Pass users_data here
+        display_revenue_breakdown_chart(revenue_data, years, st.session_state.users)
+    elif st.session_state.page == "Calculation Explanation":
+        display_math_explanation()
 
 if __name__ == "__main__":
     main()
