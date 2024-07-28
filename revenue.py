@@ -1,6 +1,60 @@
 import streamlit as st
 from input_functions import get_plan_inputs, get_user_inputs
-from calculation_functions import calculate_revenue, display_revenue_table, display_user_growth_chart, display_revenue_growth_chart, display_revenue_breakdown_chart
+from revenue_calculation import calculate_revenue
+from revenue_display import display_revenue_table
+from charts import display_user_growth_chart, display_revenue_growth_chart, display_revenue_breakdown_chart
+
+from color_palettes import PRIMARY_PURPLE
+st.set_page_config(page_title="Revenue Projection", page_icon="📊", layout="wide", initial_sidebar_state="expanded", menu_items=None)
+
+# Custom CSS for tab styling
+st.markdown(f"""
+<style>
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 24px;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        height: 50px;
+        white-space: pre-wrap;
+        border-radius: 4px 4px 0px 0px;
+        gap: 12px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-bottom: 2px solid transparent;
+    }}
+    .stTabs [aria-selected="true"] {{
+        background-color: transparent !important;
+        border-bottom-color: {PRIMARY_PURPLE[700]} !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+    }}
+    .stTabs [aria-selected="true"] [data-testid="stMarkdownContainer"] p {{
+        color: {PRIMARY_PURPLE[700]} !important;
+    }}
+    .stTabs [role="tablist"] button [data-testid="stMarkdownContainer"] p {{
+        font-size: 14px;
+        font-weight: 500;
+    }}
+    .stTabs [data-baseweb="tab"]:hover {{
+        background-color: transparent !important;
+        border-bottom-color: {PRIMARY_PURPLE[700]} !important;
+        border-top: none !important;
+        border-left: none !important;
+        border-right: none !important;
+    }}
+    .stTabs [data-baseweb="tab"]:hover [data-testid="stMarkdownContainer"] p {{
+        color: {PRIMARY_PURPLE[700]} !important;
+    }}
+    .stTabs [data-baseweb="tab-highlight"] {{
+        display: none;
+    }}
+</style>
+""", unsafe_allow_html=True)
+
+# ... rest of your main() function
 
 def main():
     if 'page' not in st.session_state:
@@ -38,7 +92,7 @@ def main():
         display_revenue_growth_chart(revenue_data, years)
 
         st.subheader("Revenue Breakdown by Line Item")
-        display_revenue_breakdown_chart(revenue_data, years)
+        display_revenue_breakdown_chart(revenue_data, years, st.session_state.users)  # Pass users_data here
 
 if __name__ == "__main__":
     main()
