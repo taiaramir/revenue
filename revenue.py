@@ -7,6 +7,30 @@ from color_palettes import PRIMARY_PURPLE
 from help_page import display_math_explanation
 
 def main():
+    # Custom CSS to style the sidebar
+    st.markdown("""
+        <style>
+        .sidebar .sidebar-content {
+            background-color: #f0f2f6;
+        }
+        .sidebar .sidebar-content .stButton>button {
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 1rem;
+            background-color: transparent;
+            border: none;
+            color: #262730;
+        }
+        .sidebar .sidebar-content .stButton>button:hover {
+            background-color: #e0e2e6;
+        }
+        .sidebar .sidebar-content .stButton>button:focus:not(:active) {
+            border-color: transparent;
+            box-shadow: none;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     if 'page' not in st.session_state:
         st.session_state.page = "Plans"
 
@@ -14,10 +38,9 @@ def main():
     
     # Main navigation
     main_pages = ["Plans", "Users", "Revenue", "Insights"]
-    selected_page = st.sidebar.radio("Go to", main_pages, key="navigation")
-    
-    # Update the page state based on main navigation
-    st.session_state.page = selected_page
+    for page in main_pages:
+        if st.sidebar.button(page, key=f"nav_{page}"):
+            st.session_state.page = page
 
     # Add year slider to sidebar
     st.sidebar.markdown("---")
@@ -28,12 +51,6 @@ def main():
     st.sidebar.markdown("---")
     if st.sidebar.button("Calculation Explanation", key="help_button"):
         st.session_state.page = "Calculation Explanation"
-
-    # Initialize session state for plans and users if not already present
-    if 'plans' not in st.session_state:
-        st.session_state.plans = get_plan_inputs()
-    if 'users' not in st.session_state:
-        st.session_state.users = get_user_inputs()
 
     # Display the appropriate page content
     if st.session_state.page == "Plans":
