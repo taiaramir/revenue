@@ -1,4 +1,5 @@
 import streamlit as st
+import uuid
 
 def get_plan_inputs():
     st.header("Plans")
@@ -14,6 +15,9 @@ def get_plan_inputs():
     
     if 'plans_data' not in st.session_state:
         st.session_state.plans_data = {}
+    
+    if 'plan_widget_keys' not in st.session_state:
+        st.session_state.plan_widget_keys = {}
 
     for i, tab in enumerate(tabs):
         with tab:
@@ -30,13 +34,9 @@ def get_plan_inputs():
                     "Growth": 150.0,
                     "Churn": 30.0,
                 }
-            else:
-                # Handle the transition from "Seat Fee" to "User Fee"
-                if "Seat Fee" in st.session_state.plans_data[plan_type]:
-                    st.session_state.plans_data[plan_type]["User Fee"] = st.session_state.plans_data[plan_type].pop("Seat Fee")
-                # Ensure Workspace Fee is a number
-                if isinstance(st.session_state.plans_data[plan_type]["Workspace Fee"], str):
-                    st.session_state.plans_data[plan_type]["Workspace Fee"] = 0.0
+            
+            if plan_type not in st.session_state.plan_widget_keys:
+                st.session_state.plan_widget_keys[plan_type] = str(uuid.uuid4())
             
             col1, space, col2 = st.columns([1, 0.1, 1])
             
@@ -47,7 +47,7 @@ def get_plan_inputs():
                     min_value=0.0, 
                     value=float(st.session_state.plans_data[plan_type]["Platform Fee"]), 
                     step=1.0, 
-                    key=f"Platform Fee_{plan_type}"
+                    key=f"Platform Fee_{plan_type}_{st.session_state.plan_widget_keys[plan_type]}"
                 )
                 
                 st.session_state.plans_data[plan_type]["User Fee"] = st.number_input(
@@ -55,7 +55,7 @@ def get_plan_inputs():
                     min_value=0.0, 
                     value=float(st.session_state.plans_data[plan_type]["User Fee"]), 
                     step=1.0, 
-                    key=f"User Fee_{plan_type}"
+                    key=f"User Fee_{plan_type}_{st.session_state.plan_widget_keys[plan_type]}"
                 )
                 
                 st.session_state.plans_data[plan_type]["Workspace Fee"] = st.number_input(
@@ -63,7 +63,7 @@ def get_plan_inputs():
                     min_value=0.0, 
                     value=float(st.session_state.plans_data[plan_type]["Workspace Fee"]), 
                     step=1.0, 
-                    key=f"Workspace Fee_{plan_type}"
+                    key=f"Workspace Fee_{plan_type}_{st.session_state.plan_widget_keys[plan_type]}"
                 )
                 
                 st.session_state.plans_data[plan_type]["Implementation Fee"] = st.number_input(
@@ -71,7 +71,7 @@ def get_plan_inputs():
                     min_value=0.0, 
                     value=float(st.session_state.plans_data[plan_type]["Implementation Fee"]), 
                     step=1.0, 
-                    key=f"Implementation Fee_{plan_type}"
+                    key=f"Implementation Fee_{plan_type}_{st.session_state.plan_widget_keys[plan_type]}"
                 )
 
             with col2:
@@ -82,7 +82,7 @@ def get_plan_inputs():
                     value=float(st.session_state.plans_data[plan_type]["Growth"]), 
                     step=0.1, 
                     format="%.1f",
-                    key=f"Growth_{plan_type}"
+                    key=f"Growth_{plan_type}_{st.session_state.plan_widget_keys[plan_type]}"
                 )
                 
                 st.session_state.plans_data[plan_type]["Churn"] = st.number_input(
@@ -91,7 +91,7 @@ def get_plan_inputs():
                     value=float(st.session_state.plans_data[plan_type]["Churn"]), 
                     step=0.1, 
                     format="%.1f",
-                    key=f"Churn_{plan_type}"
+                    key=f"Churn_{plan_type}_{st.session_state.plan_widget_keys[plan_type]}"
                 )
 
     return st.session_state.plans_data
